@@ -1,4 +1,4 @@
-CPP=clang++
+CPP=g++
 CFLAGS=-Wall -pedantic -std=c++11 -g
 OBJS=HiddenMarkovModel.o
 

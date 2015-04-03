@@ -103,25 +103,26 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	 * The third line contains each possible observation symbol. */
 	string line;
 
-	// set vectors to their designated sizes
 	getline(file, line);
 	vector<int> sizes = split<int>(line);
 
+	// parse first line
 	int N = sizes[0], M = sizes[1], T = sizes[2];
-
-	_stateNames = vector<string>(sizes[0]);
-	_outputNames = vector<string>(sizes[1]);
 
 	// enumerate HMM states
 	getline(file, line);
-	_stateNames = split<string>(line);
+	vector<string> stateNames = split<string>(line);
+	for (size_t i = 0; i < stateNames.size(); ++i)
+		_states[stateNames[i]] = i;
 
 	// enumerate HMM observations
 	getline(file, line);
-	_outputNames = split<string>(line);
+	vector<string> outputNames = split<string>(line);
+	for (size_t i = 0; i < outputNames.size(); ++i)
+		_outputs[outputNames[i]] = i;
 
 	// set state transition probabilities
-	file.ignore(numeric_limits<streamsize>::max(), '\n'); // consume until next line
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
 	_stateMatrix = getMatrix(file, N, N);
 
 	// set observations emission probabilties
