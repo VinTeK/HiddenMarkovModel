@@ -87,7 +87,7 @@ vector<vector<double> > getMatrix(ifstream& file, int height, int width)
 }
 
 
-HiddenMarkovModel::HiddenMarkovModel(char* filename)
+HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 {
 	ifstream file(filename);
 	if (!file.is_open())
@@ -135,7 +135,31 @@ HiddenMarkovModel::HiddenMarkovModel(char* filename)
 }
 
 
-double HiddenMarkovModel::getProb(const vector<int>& outputSeq, const vector<int>& stateSeq) const
+/*
+double HiddenMarkovModel::evaluate(const string& filename) const
+{
+	ifstream file(filename);
+	if (!file.is_open())
+		throw runtime_error("file not found: " + string(filename));
+
+	int count;
+	file >> count;
+
+	vector<vector<string> > observations(len);
+
+	for (int i = 0; i < count; ++i)
+	{
+		file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+		string line;
+		getline(file, line);
+
+		observations.push_back(split<string>(line));
+	}
+}
+
+
+double HiddenMarkovModel::evaluate(const vector<int>& outputSeq, const vector<int>& stateSeq) const
 {
 	if (outputSeq.size() != stateSeq.size())
 		return 0;
@@ -152,3 +176,4 @@ double HiddenMarkovModel::getProb(const vector<int>& outputSeq, const vector<int
 
 	return ret;
 }
+*/

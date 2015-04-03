@@ -15,4 +15,4 @@ optimize: $(OBJS) optimize.cpp
 	$(CPP) $(CFLAGS) -c $<
 
 clean:
-	rm -f *.o $(EXE)
+	rm -f *.o recognize statepath optimize

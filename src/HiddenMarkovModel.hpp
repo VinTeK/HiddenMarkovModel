@@ -8,13 +8,14 @@
 class HiddenMarkovModel
 {
 public:
-	HiddenMarkovModel(char* filename);
+	HiddenMarkovModel(const std::string& filename);
 
 	std::vector<std::string> states() const { return _stateNames; };
 	std::vector<std::string> outputs() const { return _outputNames; };
 
 	/** Returns probability of an output sequence based on a given state sequence. */
-	double getProb(const std::vector<int>& outputSeq, const std::vector<int>& stateSeq) const;
+	double evaluate(const std::string& filename) const;
+	double evaluate(const std::vector<int>& outputSeq, const std::vector<int>& stateSeq) const;
 
 private:
 	std::vector<std::string> _stateNames;
