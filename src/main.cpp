@@ -24,6 +24,9 @@ int main(int argc, char** argv)
 	for (auto x : hmm.outputs())
 		cout << x << endl;
 
+	vector<int> outSeq = {0, 1}, sttSeq = {0, 1};
+	cout << hmm.getProb(outSeq, sttSeq) << endl;
+
 	return 0;
 }
 

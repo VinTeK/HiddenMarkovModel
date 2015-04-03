@@ -134,3 +134,21 @@ HiddenMarkovModel::HiddenMarkovModel(char* filename)
 	_initStateMatrix = split<double>(line);
 }
 
+
+double HiddenMarkovModel::getProb(const vector<int>& outputSeq, const vector<int>& stateSeq) const
+{
+	if (outputSeq.size() != stateSeq.size())
+		return 0;
+
+	vector<int>::const_iterator curState = stateSeq.begin(), curOutput = outputSeq.begin();
+	double ret = _initStateMatrix[*curState] * _outputMatrix[*curState][*curOutput++];
+
+	while (curOutput != outputSeq.end())
+	{
+		ret *= _stateMatrix[*curState][*(curState+1)];
+		++curState;
+		ret *= _outputMatrix[*curState][*curOutput++];
+	}
+
+	return ret;
+}

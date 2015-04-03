@@ -13,6 +13,9 @@ public:
 	std::vector<std::string> states() const { return _stateNames; };
 	std::vector<std::string> outputs() const { return _outputNames; };
 
+	/** Returns probability of an output sequence based on a given state sequence. */
+	double getProb(const std::vector<int>& outputSeq, const std::vector<int>& stateSeq) const;
+
 private:
 	std::vector<std::string> _stateNames;
 	std::vector<std::vector<double> > _stateMatrix;
