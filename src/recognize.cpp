@@ -16,36 +16,34 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// arg parsing
-	string hmmFile;
-	vector<string> obsFiles;
+	/* Parse arguments. We accept only one .hmm file but allow multiple .obs files. */
+	string hmmFilename;
+	vector<string> obsFilenames;
 
-	while (argc != 0)
+	for (int i = 1; i < argc; ++i)
 	{
-		string arg(argv[--argc]);
+		string arg(argv[i]);
 
-		if (arg.find(".hmm"))
-			hmmFile = arg;
-		else if (arg.find(".obs"))
-			obsFiles.push_back(arg);
+		if (arg.find(".hmm") != string::npos)
+			hmmFilename = arg;
+		else if (arg.find(".obs") != string::npos)
+			obsFilenames.push_back(arg);
 	}
 
-	if (hmmFile.empty())
+	if (hmmFilename.empty())
 	{
 		cerr << "no .hmm file found" << endl;
 		return 1;
 	}
 
-	HiddenMarkovModel hmm(hmmFile);
+	HiddenMarkovModel hmm(hmmFilename);
 
-	/*
-	for (auto i = obsFiles.begin(); i != obsFiles.end(); ++i)
+	for (auto i = obsFilenames.begin(); i != obsFilenames.end(); ++i)
 	{
 		cout << *i << " = ";
-		hmm.evaluate(*i);
+		//hmm.evaluate(*i);
 		cout << endl;
 	}
-	*/
 
 	return 0;
 }
