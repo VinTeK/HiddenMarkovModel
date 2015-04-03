@@ -1,10 +1,15 @@
-CPP=g++
+CPP=clang++
 CFLAGS=-Wall -pedantic -std=c++11 -g
-OBJS=main.o HiddenMarkovModel.o
-EXE=hmm
+OBJS=HiddenMarkovModel.o
 
-$(EXE): $(OBJS)
-	$(CPP) $(CFLAGS) -o $(EXE) $^
+recognize: $(OBJS) recognize.cpp
+	$(CPP) $(CFLAGS) -o $@ $^
+
+statepath: $(OBJS) statepath.cpp
+	$(CPP) $(CFLAGS) -o $@ $^
+
+optimize: $(OBJS) optimize.cpp
+	$(CPP) $(CFLAGS) -o $@ $^
 
 %.o: %.cpp
 	$(CPP) $(CFLAGS) -c $<
