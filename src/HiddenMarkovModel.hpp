@@ -20,7 +20,7 @@ private:
 	std::vector<std::string> _outputNames;
 	std::vector<std::vector<double> > _outputMatrix;
 
-	std::vector<std::vector<double> > _initStateMatrix;
+	std::vector<double> _initStateMatrix;
 };
 
 

@@ -130,5 +130,7 @@ HiddenMarkovModel::HiddenMarkovModel(char* filename)
 
 	// set initial state probabilties
 	file.ignore(numeric_limits<streamsize>::max(), '\n');
-	_initStateMatrix = getMatrix(file, 1, N);
+	getline(file, line);
+	_initStateMatrix = split<double>(line);
 }
+
