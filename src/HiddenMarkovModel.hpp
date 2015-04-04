@@ -11,18 +11,15 @@ class HiddenMarkovModel
 public:
 	HiddenMarkovModel(const std::string& filename);
 
+	/** Returns evaluation of a .obs file. */
+	double eval(const std::string& filename) const;
 	/** Returns probability of an output sequence based on a given state sequence. */
-	double evaluate(const std::string& filename) const;
-	double evaluate(const std::vector<int>& outputSeq, const std::vector<int>& stateSeq) const;
+	double eval(const std::vector<std::string>& out, const std::vector<std::string>& stt) const;
 
 private:
-	std::map<std::string, int> _states;
-	std::vector<std::vector<double> > _stateMatrix;
-
-	std::map<std::string, int> _outputs;
-	std::vector<std::vector<double> > _outputMatrix;
-
-	std::vector<double> _initStateMatrix;
+	std::map<std::string, std::map<std::string, double> > _transitions;
+	std::map<std::string, std::map<std::string, double> > _emissions;
+	std::map<std::string, double> _initStates;
 };
 
 

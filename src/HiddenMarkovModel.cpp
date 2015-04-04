@@ -109,30 +109,53 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	// parse first line
 	int N = sizes[0], M = sizes[1], T = sizes[2];
 
-	// enumerate HMM states
+	// get state names
 	getline(file, line);
 	vector<string> stateNames = split<string>(line);
-	for (size_t i = 0; i < stateNames.size(); ++i)
-		_states[stateNames[i]] = i;
 
-	// enumerate HMM observations
+	// get output names
 	getline(file, line);
 	vector<string> outputNames = split<string>(line);
-	for (size_t i = 0; i < outputNames.size(); ++i)
-		_outputs[outputNames[i]] = i;
 
-	// set state transition probabilities
+	// consume "a:"
 	file.ignore(numeric_limits<streamsize>::max(), '\n');
-	_stateMatrix = getMatrix(file, N, N);
 
-	// set observations emission probabilties
+	// initialize state transition probability matrix
+	for (auto i = stateNames.begin(); i != stateNames.end(); ++i)
+	{
+		getline(file, line);
+		vector<double> curLine = split<double>(line);
+		int col = 0;
+
+		for (auto j = outputNames.begin(); j != outputNames.end(); ++j)
+			_transitions[*i][*j] = curLine[col++];
+	}
+
+	// consume "b:"
 	file.ignore(numeric_limits<streamsize>::max(), '\n');
-	_outputMatrix = getMatrix(file, N, M);
+
+	// initialize output emission probability matrix
+	for (auto i = stateNames.begin(); i != stateNames.end(); ++i)
+	{
+		getline(file, line);
+		vector<double> curLine = split<double>(line);
+		int col = 0;
+
+		for (auto j = outputNames.begin(); j != outputNames.end(); ++j)
+			_emissions[*i][*j] = curLine[col++];
+	}
+
+	// consume "pi:"
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	// set initial state probabilties
-	file.ignore(numeric_limits<streamsize>::max(), '\n');
 	getline(file, line);
-	_initStateMatrix = split<double>(line);
+	vector<double> tmp = split<double>(line);
+	int col = 0;
+	for (auto i = stateNames.begin(); i != stateNames.end(); ++i)
+	{
+		_initStates[*i] = tmp[col++];
+	}
 }
 
 
