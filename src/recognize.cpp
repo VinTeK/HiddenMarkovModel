@@ -37,14 +37,27 @@ int main(int argc, char** argv)
 	}
 
 	HiddenMarkovModel hmm(hmmFilename);
-
-	/*
+/*
 	for (auto i = obsFilenames.begin(); i != obsFilenames.end(); ++i)
 	{
 		cout << *i << ":" << endl;
 		hmm.eval(*i);
-	}
-	*/
+	}*/
+	std::vector<string> obs = {"students", "develop", "games"};
+	std::vector<string> state = {"SUBJECT", "AUXILIARY", "PREDICATE", "OBJECT"} ;
+	/*
+	double totprob = 0;
+	for (int i = 0; i < state.size(); i++)
+	{
+		double prob = hmm._initStates[state.at(i)];
+		for (int j = 0; j < obs.size(); j++)
+		{
+			prob *= hmm._emissions[state.at(i)][obs.at(j)];
+		}
+	}*/
+	cout << hmm.eval(obs, state) << endl;
+	cout << state.size() << endl;
+	cout << hmm._transitions[state.at(0)][state.at(1)] << endl;
 
 	return 0;
 }

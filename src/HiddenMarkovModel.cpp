@@ -158,7 +158,7 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	}
 }
 
-
+//have to work on getting this right
 double HiddenMarkovModel::eval(const string& filename) const
 {
 	ifstream file(filename);
@@ -184,18 +184,30 @@ double HiddenMarkovModel::eval(const string& filename) const
 
 double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& stt)
 {
-	if (out.size() != stt.size())
-		return 0;
+	//if (out.size() != stt.size())
+	//	return 0;	Don't need this. See first example
+
+	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
+	//double ret = _initStates[*curStt] * _emissions[*curStt][*curOut++];
+
+	while (curOut != out.end())
+	{
+		ret = _transitions[*curStt][*(curStt+1)];
+		++curStt;
+		ret *= _emissions[*curStt][*curOut++];
+	}
+
+	return ret;
+}
+
+double HiddenMarkovModel::init_eval(const vector<string>& out, const vector<string>& stt)
+{
+	//if (out.size() != stt.size())
+	//	return 0;	Don't need this. See first example
 
 	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
 	double ret = _initStates[*curStt] * _emissions[*curStt][*curOut++];
 
-	while (curOut != out.end())
-	{
-		ret *= _transitions[*curStt][*(curStt+1)];
-		++curStt;
-		ret *= _emissions[*curStt][*curOut++];
-	}
 
 	return ret;
 }
