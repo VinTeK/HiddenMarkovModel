@@ -220,3 +220,33 @@ double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& 
 
 	return ret;
 }
+
+
+vector<double> HiddenMarkovModel::forward(const string& filename)
+{
+	ifstream file(filename);
+	if (!file.is_open())
+		throw runtime_error("file not found: " + string(filename));
+
+	int count;
+	file >> count;
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	vector<vector<string> > observations(count);
+
+	for (int i = 0; i < count; ++i)
+	{
+		file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+		string line;
+		getline(file, line);
+
+		observations[i] = split<string>(line);
+	}
+
+	vector<double> ret;
+
+	// TODO	
+
+	return ret;
+}

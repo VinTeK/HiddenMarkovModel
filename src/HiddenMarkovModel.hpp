@@ -11,8 +11,8 @@ class HiddenMarkovModel
 public:
 	HiddenMarkovModel(const std::string& filename);
 
-	int numOfStates() const { return _numOfStates; }
-	int numOfOutputs() const { return _numOfOutputs; }
+	size_t numOfStates() const { return _numOfStates; }
+	size_t numOfOutputs() const { return _numOfOutputs; }
 
 	/** Return state transition probability from states stt1 to stt2. */
 	double transition(const std::string& stt1, const std::string& stt2);
@@ -30,8 +30,12 @@ public:
 	/** Returns evaluation of a .obs file. */
 	double eval(const std::string& filename);
 
+	/** Returns the forward variables for each observation sequence in a given .obs file. */
+	std::vector<double> forward(const std::string& filename);
+
 private:
 	size_t _numOfStates, _numOfOutputs;
+
 	std::map<std::string, std::map<std::string, double> > _transitions;
 	std::map<std::string, std::map<std::string, double> > _emissions;
 	std::map<std::string, double> _initStates;
