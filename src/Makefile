@@ -2,6 +2,8 @@ CPP=g++
 CFLAGS=-Wall -pedantic -std=c++11 -g
 OBJS=HiddenMarkovModel.o
 
+all: recognize statepath optimize
+
 recognize: $(OBJS) recognize.cpp
 	$(CPP) $(CFLAGS) -o $@ $^
 
