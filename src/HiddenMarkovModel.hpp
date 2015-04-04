@@ -14,7 +14,7 @@ public:
 	/** Returns evaluation of a .obs file. */
 	double eval(const std::string& filename) const;
 	/** Returns probability of an output sequence based on a given state sequence. */
-	double eval(const std::vector<std::string>& out, const std::vector<std::string>& stt) const;
+	double eval(const std::vector<std::string>& out, const std::vector<std::string>& stt);
 
 private:
 	std::map<std::string, std::map<std::string, double> > _transitions;

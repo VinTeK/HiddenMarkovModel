@@ -127,7 +127,7 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 		vector<double> curLine = split<double>(line);
 		int col = 0;
 
-		for (auto j = outputNames.begin(); j != outputNames.end(); ++j)
+		for (auto j = stateNames.begin(); j != stateNames.end(); ++j)
 			_transitions[*i][*j] = curLine[col++];
 	}
 
@@ -159,8 +159,7 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 }
 
 
-/*
-double HiddenMarkovModel::evaluate(const string& filename) const
+double HiddenMarkovModel::eval(const string& filename) const
 {
 	ifstream file(filename);
 	if (!file.is_open())
@@ -169,7 +168,7 @@ double HiddenMarkovModel::evaluate(const string& filename) const
 	int count;
 	file >> count;
 
-	vector<vector<string> > observations(len);
+	vector<vector<string> > observations(count);
 
 	for (int i = 0; i < count; ++i)
 	{
@@ -183,21 +182,20 @@ double HiddenMarkovModel::evaluate(const string& filename) const
 }
 
 
-double HiddenMarkovModel::evaluate(const vector<int>& outputSeq, const vector<int>& stateSeq) const
+double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& stt)
 {
-	if (outputSeq.size() != stateSeq.size())
+	if (out.size() != stt.size())
 		return 0;
 
-	vector<int>::const_iterator curState = stateSeq.begin(), curOutput = outputSeq.begin();
-	double ret = _initStateMatrix[*curState] * _outputMatrix[*curState][*curOutput++];
+	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
+	double ret = _initStates[*curStt] * _emissions[*curStt][*curOut++];
 
-	while (curOutput != outputSeq.end())
+	while (curOut != out.end())
 	{
-		ret *= _stateMatrix[*curState][*(curState+1)];
-		++curState;
-		ret *= _outputMatrix[*curState][*curOutput++];
+		ret *= _transitions[*curStt][*(curStt+1)];
+		++curStt;
+		ret *= _emissions[*curStt][*curOut++];
 	}
 
 	return ret;
 }
-*/
