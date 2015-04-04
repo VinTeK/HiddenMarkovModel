@@ -106,8 +106,9 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	getline(file, line);
 	vector<int> sizes = split<int>(line);
 
-	// parse first line
-	//int N = sizes[0], M = sizes[1], T = sizes[2];
+	// initialize number of states and observation symbols
+	_numOfStates = sizes[0];
+	_numOfOutputs = sizes[1];
 
 	// get state names
 	getline(file, line);
