@@ -184,8 +184,8 @@ double HiddenMarkovModel::eval(const string& filename) const
 
 double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& stt)
 {
-	//if (out.size() != stt.size())
-	//	return 0;	Don't need this. See first example
+	if (out.size() != stt.size())
+		return 0;
 
 	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
 	//double ret = _initStates[*curStt] * _emissions[*curStt][*curOut++];
@@ -200,14 +200,7 @@ double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& 
 	return ret;
 }
 
-double HiddenMarkovModel::init_eval(const vector<string>& out, const vector<string>& stt)
+double HiddenMarkovModel::initEval(const string& out, const string& stt)
 {
-	//if (out.size() != stt.size())
-	//	return 0;	Don't need this. See first example
-
-	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
-	double ret = _initStates[*curStt] * _emissions[*curStt][*curOut++];
-
-
-	return ret;
+	return _initStates[stt] * _emissions[stt][out];
 }
