@@ -46,18 +46,19 @@ int main(int argc, char** argv)
 	std::vector<string> obs = {"students", "develop", "games"};
 	std::vector<string> state = {"SUBJECT", "AUXILIARY", "PREDICATE", "OBJECT"} ;
 	
-	double totprob = 0;
-	for (int i = 0; i < state.size(); i++)
+	double totprob = 0, prob = 1;
+	for (size_t i = 0; i < state.size(); i++)
 	{
-		for (int j = 0; j < obs.size(); j++)
+		for (size_t j = 0; j < obs.size(); j++)
 		{
 			prob = hmm.initEval(state.at(i),obs.at(j));
-			prob *= hmm._emissions[state.at(i)][obs.at(j)];
+			prob *= hmm.emission(state.at(i), obs.at(j));
+			prob *= hmm.emission(state.at(i), obs.at(j));
 		}
 	}
 	cout << hmm.eval(obs, state) << endl;
 	cout << state.size() << endl;
-	cout << hmm._transitions[state.at(0)][state.at(1)] << endl;
+	cout << hmm.transition(state.at(0), state.at(1)) << endl;
 
 	return 0;
 }

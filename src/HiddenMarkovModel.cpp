@@ -107,7 +107,7 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	vector<int> sizes = split<int>(line);
 
 	// parse first line
-	int N = sizes[0], M = sizes[1], T = sizes[2];
+	//int N = sizes[0], M = sizes[1], T = sizes[2];
 
 	// get state names
 	getline(file, line);
@@ -158,8 +158,72 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	}
 }
 
+
+double HiddenMarkovModel::transition(const std::string& stt1, const std::string& stt2)
+{
+	// check if this state name exists as a key in our map
+	if (_transitions.find(stt1) == _transitions.end())
+		throw runtime_error("No such state: " + stt1);
+	if (_transitions[stt1].find(stt2) == _transitions[stt1].end())
+		throw runtime_error("No such state: " + stt2);
+
+	return _transitions[stt1][stt2];
+}
+
+
+double HiddenMarkovModel::emission(const std::string& stt, const std::string& out)
+{
+	if (_emissions.find(stt) == _emissions.end())
+		throw runtime_error("No such state: " + stt);
+	if (_emissions[stt].find(out) == _emissions[stt].end())
+		throw runtime_error("No such output: " + out);
+
+	return _emissions[stt][out];
+}
+
+
+double HiddenMarkovModel::initState(const std::string& stt)
+{
+	if (_emissions.find(stt) == _emissions.end())
+		throw runtime_error("No such state: " + stt);
+
+	return _initStates[stt];
+}
+
+
+double HiddenMarkovModel::initEval(const string& out, const string& stt)
+{
+	return _initStates[stt] * _emissions[stt][out];
+}
+
+
+double HiddenMarkovModel::eval(const string& out, const string stts[2])
+{
+	return transition(stts[0], stts[1]) * emission(stts[1], out);
+}
+
+
+double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& stt)
+{
+	if (out.size() != stt.size())
+		return 0;
+
+	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
+	double ret = initEval(*curOut++, *curStt);
+
+	while (curOut != out.end())
+	{
+		string tmp[2] = {*curStt, *(++curStt)};
+		ret *= eval(*curOut++, tmp);
+	}
+
+	return ret;
+}
+
+
+#if 0
 //have to work on getting this right
-double HiddenMarkovModel::eval(const string& filename) const
+double HiddenMarkovModel::eval(const string& filename)
 {
 	ifstream file(filename);
 	if (!file.is_open())
@@ -180,27 +244,4 @@ double HiddenMarkovModel::eval(const string& filename) const
 		observations.push_back(split<string>(line));
 	}
 }
-
-
-double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& stt)
-{
-	if (out.size() != stt.size())
-		return 0;
-
-	vector<string>::const_iterator curStt = stt.begin(), curOut = out.begin();
-	//double ret = _initStates[*curStt] * _emissions[*curStt][*curOut++];
-
-	while (curOut != out.end())
-	{
-		ret = _transitions[*curStt][*(curStt+1)];
-		++curStt;
-		ret *= _emissions[*curStt][*curOut++];
-	}
-
-	return ret;
-}
-
-double HiddenMarkovModel::initEval(const string& out, const string& stt)
-{
-	return _initStates[stt] * _emissions[stt][out];
-}
+#endif
