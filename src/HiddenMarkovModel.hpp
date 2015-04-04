@@ -33,5 +33,8 @@ private:
 	std::map<std::string, double> _initStates;
 };
 
+/** Return a vector of this line split into space delimited words. */
+template <typename T> std::vector<T> split(const std::string& line);
+
 
 #endif

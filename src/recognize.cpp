@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include "HiddenMarkovModel.hpp"
 
@@ -44,6 +45,7 @@ int main(int argc, char** argv)
 	{
 		cout << *i << ":" << endl;
 
+		/* Print the evaluation results for each observation in this file. */
 		for (auto result : forward(hmm, *i))
 			cout << result << endl;
 	}
@@ -60,6 +62,26 @@ void help(char* program)
 
 vector<double> forward(const HiddenMarkovModel& hmm, const string& filename)
 {
+	ifstream file(filename);
+	if (!file.is_open())
+		throw runtime_error("file not found: " + string(filename));
+
+	int count;
+	file >> count;
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	vector<vector<string> > observations(count);
+
+	for (int i = 0; i < count; ++i)
+	{
+		file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+		string line;
+		getline(file, line);
+
+		observations[i] = split<string>(line);
+	}
+
 	vector<double> ret;
 
 	// TODO
