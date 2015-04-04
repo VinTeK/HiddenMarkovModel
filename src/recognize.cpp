@@ -6,6 +6,7 @@ using namespace std;
 
 
 void help(char*);
+vector<double> forward(const HiddenMarkovModel& hmm, const string& filename);
 
 
 int main(int argc, char** argv)
@@ -37,28 +38,15 @@ int main(int argc, char** argv)
 	}
 
 	HiddenMarkovModel hmm(hmmFilename);
-/*
+
+	/* Evaluate forward algorithm for each .obs file. Each file may have multiple sequences. */
 	for (auto i = obsFilenames.begin(); i != obsFilenames.end(); ++i)
 	{
 		cout << *i << ":" << endl;
-		hmm.eval(*i);
-	}*/
-	std::vector<string> obs = {"students", "develop", "games"};
-	std::vector<string> state = {"SUBJECT", "AUXILIARY", "PREDICATE", "OBJECT"} ;
-	
-	double totprob = 0, prob = 1;
-	for (size_t i = 0; i < state.size(); i++)
-	{
-		for (size_t j = 0; j < obs.size(); j++)
-		{
-			prob = hmm.initEval(state.at(i),obs.at(j));
-			prob *= hmm.emission(state.at(i), obs.at(j));
-			prob *= hmm.emission(state.at(i), obs.at(j));
-		}
+
+		for (auto result : forward(hmm, *i))
+			cout << result << endl;
 	}
-	cout << hmm.eval(obs, state) << endl;
-	cout << state.size() << endl;
-	cout << hmm.transition(state.at(0), state.at(1)) << endl;
 
 	return 0;
 }
@@ -67,4 +55,14 @@ int main(int argc, char** argv)
 void help(char* program)
 {
 	cout << program << ": [model.hmm] [observation.obs ...]" << endl;
+}
+
+
+vector<double> forward(const HiddenMarkovModel& hmm, const string& filename)
+{
+	vector<double> ret;
+
+	// TODO
+
+	return ret;
 }
