@@ -38,13 +38,27 @@ int main(int argc, char** argv)
 
 	HiddenMarkovModel hmm(hmmFilename);
 
-	/*
-	for (auto i = obsFilenames.begin(); i != obsFilenames.end(); ++i)
+
+	std::vector<string> sttpath;
+	double max = 0.0;
+	int i = 0;
+	string state;
+	while (i != hmm.observations.size())
 	{
-		cout << *i << ":" << endl;
-		hmm.eval(*i);
+		for (auto obs : hmm.numofOutputs())
+		{
+			for (auto stt : hmm.numofStates())
+			{
+				double prob = hmm.emission(hmm._statenames[stt], hmm.observations[i][obs]);
+				if (prob > max)
+				{
+					max = prob; 
+					state = hmm._statenames[stt];
+				}
+			}
+		}
+		i++;
 	}
-	*/
 
 	return 0;
 }
