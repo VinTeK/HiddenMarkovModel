@@ -36,6 +36,8 @@ public:
 private:
 	size_t _numOfStates, _numOfOutputs;
 
+	std::vector<std::string> _stateNames;
+
 	std::map<std::string, std::map<std::string, double> > _transitions;
 	std::map<std::string, std::map<std::string, double> > _emissions;
 	std::map<std::string, double> _initStates;

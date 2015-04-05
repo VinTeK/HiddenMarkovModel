@@ -114,6 +114,9 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	getline(file, line);
 	vector<string> stateNames = split<string>(line);
 
+	// initialize all state names
+	_stateNames = stateNames;
+
 	// get output names
 	getline(file, line);
 	vector<string> outputNames = split<string>(line);
@@ -246,7 +249,9 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 
 	vector<double> ret;
 
-	// TODO	
+	for (size_t i = 0; i < _numOfStates; ++i)
+	{
+	}
 
 	return ret;
 }
