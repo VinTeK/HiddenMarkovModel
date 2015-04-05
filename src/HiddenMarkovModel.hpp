@@ -34,6 +34,9 @@ public:
 	std::vector<double> forward(const std::string& filename);
 
 private:
+	double forwardHelper(const std::vector<std::string>& obs, int t, const std::string& curStt);
+
+private:
 	size_t _numOfStates, _numOfOutputs;
 
 	std::vector<std::string> _stateNames;

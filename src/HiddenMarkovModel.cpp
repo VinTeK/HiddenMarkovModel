@@ -70,22 +70,6 @@ vector<double> split(const string& line)
 	return ret;
 }
 
-vector<vector<double> > getMatrix(ifstream& file, int height, int width)
-{
-	// initialize matrix dims
-	vector<vector<double> > ret(height);
-
-	for (int row = 0; row < height; ++row)
-	{
-		string line;
-		getline(file, line);
-
-		ret[row] = split<double>(line);
-	}
-
-	return ret;
-}
-
 
 HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 {
@@ -113,7 +97,6 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	// get state names
 	getline(file, line);
 	vector<string> stateNames = split<string>(line);
-
 	// initialize all state names
 	_stateNames = stateNames;
 
@@ -225,6 +208,22 @@ double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& 
 }
 
 
+/* Treat t as the time marker at each point in the observation sequence. */
+double HiddenMarkovModel::forwardHelper(const vector<string>& obs, int t, const string& curStt)
+{
+	/* Base case: no previous paths, so the current state must be the initial state. */
+	if (t == 0)
+		return initEval(obs[t], curStt);
+
+	double sum = 0;
+
+	/* Sum up probabilities of all paths leading to curStt. */
+	for (auto stt : _stateNames)
+		sum += forwardHelper(obs, t-1, stt) * transition(stt, curStt);
+
+	return sum * emission(curStt, obs[t]);
+}
+
 vector<double> HiddenMarkovModel::forward(const string& filename)
 {
 	ifstream file(filename);
@@ -235,6 +234,7 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 	file >> count;
 	file.ignore(numeric_limits<streamsize>::max(), '\n');
 
+	/* Vector of observation sequences. */
 	vector<vector<string> > observations(count);
 
 	for (int i = 0; i < count; ++i)
@@ -249,8 +249,15 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 
 	vector<double> ret;
 
-	for (size_t i = 0; i < _numOfStates; ++i)
+	/* Iterate through each sequence of observations. */
+	for (auto obs : observations)
 	{
+		double sum = 0;
+
+		for (auto stt : _stateNames)
+			sum += forwardHelper(obs, obs.size()-1, stt);
+
+		ret.push_back(sum);
 	}
 
 	return ret;
