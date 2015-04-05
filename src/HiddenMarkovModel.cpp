@@ -216,7 +216,7 @@ double HiddenMarkovModel::initState(const std::string& stt)
 
 double HiddenMarkovModel::initEval(const string& out, const string& stt)
 {
-	return _initStates[stt] * _emissions[stt][out];
+	return initState(stt) * emission(stt, out);
 }
 
 
@@ -264,7 +264,6 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 {
 	/* Vector of observation sequences. */
 	vector<vector<string> > observations = parseObsFile(filename);
-
 	vector<double> ret;
 
 	/* Iterate through each sequence of observations. */
@@ -279,4 +278,54 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 	}
 
 	return ret;
+}
+
+// TODO: how to recreate a path???
+double HiddenMarkovModel::viterbiHelper(const vector<string>& obs, vector<string>& path,
+										int t, const string& curStt)
+{
+	if (t == 0)
+		return initEval(obs[t], curStt);
+
+	double maxProb = 0;
+	string maxStt;
+
+	for (auto stt : _stateNames)
+	{
+		double curr = viterbiHelper(obs, path, t-1, stt) * transition(stt, curStt);
+		
+		if (curr > maxProb)
+		{
+			maxProb = curr;
+			maxStt = stt;
+		}
+	}
+
+	if (!maxStt.empty())
+		path.push_back(maxStt);
+
+	return maxProb * emission(curStt, obs[t]);
+}
+
+
+std::vector<std::vector<std::string> > HiddenMarkovModel::viterbi(const std::string& filename)
+{
+	vector<vector<string> > observations = parseObsFile(filename);
+	vector<vector<string> > bestPaths;
+
+	/* Iterate through each sequence of observations. */
+	for (auto obs : observations)
+	{
+		/* Current state path for this observation. */
+		vector<string> curPath;
+
+		for (auto stt : _stateNames)
+		{
+			viterbiHelper(obs, curPath, obs.size()-1, stt);
+		}
+
+		bestPaths.push_back(curPath);
+	}
+
+	return bestPaths;
 }

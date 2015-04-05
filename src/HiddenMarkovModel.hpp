@@ -27,14 +27,16 @@ public:
 	double eval(const std::string& out, const std::string stts[2]);
 	/** Returns probability of an output sequence based on a given state sequence. */
 	double eval(const std::vector<std::string>& out, const std::vector<std::string>& stt);
-	/** Returns evaluation of a .obs file. */
-	double eval(const std::string& filename);
 
 	/** Returns the forward variables for each observation sequence in a given .obs file. */
 	std::vector<double> forward(const std::string& filename);
+	/** Returns the most likely state sequence for each observation sequence in an .obs file. */
+	std::vector<std::vector<std::string> > viterbi(const std::string& filename);
 
 private:
 	double forwardHelper(const std::vector<std::string>& obs, int t, const std::string& curStt);
+	double viterbiHelper(const std::vector<std::string>& obs, std::vector<std::string>& path,
+						 int t, const std::string& curStt);
 
 private:
 	size_t _numOfStates, _numOfOutputs;
