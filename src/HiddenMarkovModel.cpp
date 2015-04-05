@@ -7,6 +7,10 @@
 using namespace std;
 
 
+/*
+ * Utility Functions
+ */
+
 template <typename T>
 vector<T> split(const string& line)
 {
@@ -26,6 +30,8 @@ vector<T> split(const string& line)
 	return ret;
 }
 
+/* Template specializations must be defined before the first use of that specialization.
+ * C++ templates. Gah. */
 template <>
 vector<int> split(const string& line)
 {
@@ -70,6 +76,36 @@ vector<double> split(const string& line)
 	return ret;
 }
 
+
+/* Return a vector of observation sequences from a .obs file. */
+vector<vector<string> > parseObsFile(const string& filename)
+{
+	ifstream file(filename);
+	if (!file.is_open())
+		throw runtime_error("file not found: " + string(filename));
+
+	int count;
+	file >> count;
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	/* Vector of observation sequences. */
+	vector<vector<string> > observations(count);
+
+	for (int i = 0; i < count; ++i)
+	{
+		file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+		string line;
+		getline(file, line);
+
+		observations[i] = split<string>(line);
+	}
+	return observations;
+}
+
+/*
+ * HiddenMarkovModel class definitions
+ */
 
 HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 {
@@ -226,26 +262,8 @@ double HiddenMarkovModel::forwardHelper(const vector<string>& obs, int t, const 
 
 vector<double> HiddenMarkovModel::forward(const string& filename)
 {
-	ifstream file(filename);
-	if (!file.is_open())
-		throw runtime_error("file not found: " + string(filename));
-
-	int count;
-	file >> count;
-	file.ignore(numeric_limits<streamsize>::max(), '\n');
-
 	/* Vector of observation sequences. */
-	vector<vector<string> > observations(count);
-
-	for (int i = 0; i < count; ++i)
-	{
-		file.ignore(numeric_limits<streamsize>::max(), '\n');
-
-		string line;
-		getline(file, line);
-
-		observations[i] = split<string>(line);
-	}
+	vector<vector<string> > observations = parseObsFile(filename);
 
 	vector<double> ret;
 
