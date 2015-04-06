@@ -317,52 +317,91 @@ vector<double> HiddenMarkovModel::backward(const string& filename)
 }
 
 
-// TODO: how to recreate a path???
-double HiddenMarkovModel::viterbiHelper(const vector<string>& obs, vector<string>& path,
-										int t, const string& curStt)
+/* I sincerely hope to God no one ever reads this function definition... Here is an example of the
+ * C++ code you can except when translating from Python...
+ * Code taken from: https://en.wikipedia.org/wiki/Viterbi_algorithm */
+pair<double, vector<string> > HiddenMarkovModel::viterbiHelper(const vector<string>& obs)
 {
-	if (t == 0)
-		return initEval(obs[t], curStt);
+	map<int, map<string, double> > V;
+	map<string, vector<string> > path;
+	size_t t = 0;
 
-	double maxProb = 0;
-	string maxStt;
+	/* Initialize base cases (t == 0) */
+	for (auto stt : _stateNames)
+	{
+		V[0][stt] = initState(stt) * emission(stt, obs[0]);
+
+		vector<string> tmp = {stt};
+		path[stt] = tmp;
+	}
+
+	/* Run Viterbi for t > 0. */
+	++t;
+	double curMaxProb = 0;
+	string curMaxStt;
+
+	while (t != obs.size())
+	{
+		map<string, vector<string> > newPath;
+
+		for (auto stt_i : _stateNames)
+		{
+			curMaxProb = 0;
+
+			for (auto stt_j : _stateNames)
+			{
+				double curr = V[t-1][stt_j] * transition(stt_j, stt_i) * emission(stt_i, obs[t]);
+
+				if (curr > curMaxProb)
+				{
+					curMaxProb = curr;
+					curMaxStt = stt_j;
+				}
+			}
+			V[t][stt_i] = curMaxProb;
+
+			vector<string> tmp1 = path[curMaxStt];
+			vector<string> tmp2 = {stt_i};
+			tmp1.insert(tmp1.end(), tmp2.begin(), tmp2.end());
+			newPath[stt_i] = tmp1;
+		}
+		path = newPath; // don't need to remember the old paths
+
+		++t;
+	}
+
+	curMaxProb = 0; // if only one element is observed, max is sought in the init values
+
+	int n = 0;
+	if (obs.size() != 1)
+		n = obs.size()-1;
 
 	for (auto stt : _stateNames)
 	{
-		double curr = viterbiHelper(obs, path, t-1, stt) * transition(stt, curStt);
-		
-		if (curr > maxProb)
+		double curr = V[n][stt];
+
+		if (curr > curMaxProb)
 		{
-			maxProb = curr;
-			maxStt = stt;
+			curMaxProb = curr;
+			curMaxStt = stt;
 		}
 	}
 
-	if (!maxStt.empty())
-		path.push_back(maxStt);
+	/* Probability is zero; no such path can be built. */
+	if (curMaxProb == 0)
+		path.clear();
 
-	return maxProb * emission(curStt, obs[t]);
+	return make_pair(curMaxProb, path[curMaxStt]);
 }
 
-
-std::vector<std::vector<std::string> > HiddenMarkovModel::viterbi(const std::string& filename)
+vector<pair<double, vector<string> > > HiddenMarkovModel::viterbi(const string& filename)
 {
 	vector<vector<string> > observations = parseObsFile(filename);
-	vector<vector<string> > bestPaths;
+	vector<pair<double, vector<string> > > ret;
 
 	/* Iterate through each sequence of observations. */
 	for (auto obs : observations)
-	{
-		/* Current state path for this observation. */
-		vector<string> curPath;
+		ret.push_back(viterbiHelper(obs));
 
-		for (auto stt : _stateNames)
-		{
-			viterbiHelper(obs, curPath, obs.size()-1, stt);
-		}
-
-		bestPaths.push_back(curPath);
-	}
-
-	return bestPaths;
+	return ret;
 }
