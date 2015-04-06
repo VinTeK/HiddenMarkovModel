@@ -6,6 +6,14 @@
 #include <vector>
 
 
+/*
+ * Good references for the underlying algorithms:
+ * - L. R. Rabiner. A Tutorial on Hidden Markov Models and Selected Applications in Speech 
+ * Recognition, Proceedings of the IEEE, 77(2), pp. 257-286, 1989.
+ * - https://www.comp.leeds.ac.uk/roger/HiddenMarkovModels/html_dev/main.html
+ * - http://www.shokhirev.com/nikolai/abc/alg/hmm/hmm.html
+ * - Wikipedia
+ */
 class HiddenMarkovModel
 {
 public:
