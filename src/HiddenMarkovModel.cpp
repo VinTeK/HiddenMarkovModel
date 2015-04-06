@@ -164,6 +164,9 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 {
 	/* Vector of observation sequences. */
 	vector<vector<string> > observations = parseObsFile(filename);
+	if (observations.empty())
+		throw runtime_error("observation file is empty");
+
 	vector<double> ret;
 
 	/* Iterate through each sequence of observations. */
@@ -200,6 +203,9 @@ vector<double> HiddenMarkovModel::backward(const string& filename)
 {
 	/* Vector of observation sequences. */
 	vector<vector<string> > observations = parseObsFile(filename);
+	if (observations.empty())
+		throw runtime_error("observation file is empty");
+
 	vector<double> ret;
 
 	/* Iterate through each sequence of observations. */
@@ -297,6 +303,9 @@ pair<double, vector<string> > HiddenMarkovModel::viterbiHelper(const vector<stri
 vector<pair<double, vector<string> > > HiddenMarkovModel::viterbi(const string& filename)
 {
 	vector<vector<string> > observations = parseObsFile(filename);
+	if (observations.empty())
+		throw runtime_error("observation file is empty");
+
 	vector<pair<double, vector<string> > > ret;
 
 	/* Iterate through each sequence of observations. */
