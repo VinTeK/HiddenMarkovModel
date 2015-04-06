@@ -280,6 +280,43 @@ vector<double> HiddenMarkovModel::forward(const string& filename)
 	return ret;
 }
 
+
+double HiddenMarkovModel::backwardHelper(const vector<string>& obs, int t, const string& curStt)
+{
+	/* Base case: no next paths, so the current state must be the final state. */
+	if (t == static_cast<int>(obs.size()-1))
+		return 1;
+
+	double sum = 0;
+
+	/* Sum up probabilities of all paths out from curStt. */
+	for (auto stt : _stateNames)
+		sum += transition(curStt, stt) * emission(stt, obs[t+1]) * backwardHelper(obs, t+1, stt);
+
+	return sum;
+}
+
+vector<double> HiddenMarkovModel::backward(const string& filename)
+{
+	/* Vector of observation sequences. */
+	vector<vector<string> > observations = parseObsFile(filename);
+	vector<double> ret;
+
+	/* Iterate through each sequence of observations. */
+	for (auto obs : observations)
+	{
+		double sum = 0;
+
+		for (auto stt : _stateNames)
+			sum += initState(stt) * emission(stt, obs[0]) * backwardHelper(obs, 0, stt);
+
+		ret.push_back(sum);
+	}
+
+	return ret;
+}
+
+
 // TODO: how to recreate a path???
 double HiddenMarkovModel::viterbiHelper(const vector<string>& obs, vector<string>& path,
 										int t, const string& curStt)

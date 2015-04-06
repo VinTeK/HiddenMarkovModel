@@ -30,11 +30,14 @@ public:
 
 	/** Returns the forward variables for each observation sequence in a given .obs file. */
 	std::vector<double> forward(const std::string& filename);
+	/** Returns the backward variables for each observation sequence in a given .obs file. */
+	std::vector<double> backward(const std::string& filename);
 	/** Returns the most likely state sequence for each observation sequence in an .obs file. */
 	std::vector<std::vector<std::string> > viterbi(const std::string& filename);
 
 private:
 	double forwardHelper(const std::vector<std::string>& obs, int t, const std::string& curStt);
+	double backwardHelper(const std::vector<std::string>& obs, int t, const std::string& curStt);
 	double viterbiHelper(const std::vector<std::string>& obs, std::vector<std::string>& path,
 						 int t, const std::string& curStt);
 
