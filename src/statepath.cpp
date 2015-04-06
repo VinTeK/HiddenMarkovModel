@@ -38,26 +38,21 @@ int main(int argc, char** argv)
 
 	HiddenMarkovModel hmm(hmmFilename);
 
-
-	std::vector<string> sttpath;
-	double max = 0.0;
-	int i = 0;
-	string state;
-	while (i != hmm.observations.size())
+	/* Evaluate Viterbi algorithm for each .obs file. Each file may have multiple sequences. */
+	for (auto i = obsFilenames.begin(); i != obsFilenames.end(); ++i)
 	{
-		for (auto obs : hmm.numofOutputs())
+		cout << *i << ":" << endl;
+
+		/* Print the statepath results for each observation in this file. */
+		for (auto result : hmm.viterbi(*i))
 		{
-			for (auto stt : hmm.numofStates())
-			{
-				double prob = hmm.emission(hmm._statenames[stt], hmm.observations[i][obs]);
-				if (prob > max)
-				{
-					max = prob; 
-					state = hmm._statenames[stt];
-				}
-			}
+			cout << result.first;
+
+			const vector<string>& path = result.second;
+			for_each(path.begin(), path.end(), [](const string& s) { cout << " " << s; });
+
+			cout << endl;
 		}
-		i++;
 	}
 
 	return 0;
