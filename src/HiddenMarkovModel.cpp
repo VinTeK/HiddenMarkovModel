@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -157,6 +158,7 @@ double HiddenMarkovModel::forwardHelper(const vector<string>& obs, int t, const 
 	for (auto stt : _stateNames)
 		sum += forwardHelper(obs, t-1, stt) * transition(stt, curStt);
 
+
 	return sum * emission(curStt, obs[t]);
 }
 
@@ -313,4 +315,59 @@ vector<pair<double, vector<string> > > HiddenMarkovModel::viterbi(const string& 
 		ret.push_back(viterbiHelper(obs));
 
 	return ret;
+}
+
+
+double HiddenMarkovModel::xi(const vector<string>& obs, int t,
+							 const string& stt_i, const string& stt_j)
+{
+	double tmp = forwardHelper(obs, t, stt_i) * transition(stt_i, stt_j) *
+				 backwardHelper(obs, t+1, stt_j) * emission(stt_j, obs[t+1]);
+
+	double sum = 0;
+	for (auto stt : _stateNames)
+		sum += forwardHelper(obs, t, stt) * backwardHelper(obs, t, stt);
+	return tmp / sum;
+}
+
+
+double HiddenMarkovModel::gamma(const vector<string>& obs, int t, const string& curStt)
+{
+	double sum = 0;
+	for (auto stt : _stateNames)
+		sum += xi(obs, t, curStt, stt);
+	return sum;
+}
+
+
+double HiddenMarkovModel::expectedTransition(const vector<string>& obs,
+											 const string& stt_i, const string& stt_j)
+{
+	double xiSum = 0, gammaSum = 0;
+	for (int t = 0; t < obs.size()-1; ++t)
+	{
+		xiSum += xi(obs, t, stt_i, stt_j);
+		gammaSum += gamma(obs, t, stt_i);
+	}
+	return xiSum / gammaSum;
+}
+
+
+double HiddenMarkovModel::expectedEmission(const vector<string>& obs, const string& curStt)
+{
+	double sum1 = 0, sum2 = 0;
+	for (int t = 0; t < obs.size(); ++t)
+	{
+		if (obs[t] == curStt)
+			sum1 += gamma(obs, t, curStt);
+
+		sum2 += gamma(obs, t, curStt);
+	}
+	return sum1 / sum2;
+}
+
+
+double HiddenMarkovModel::expectedInitState(const vector<string>& obs, const string& curStt)
+{
+	return gamma(obs, 0, curStt);
 }

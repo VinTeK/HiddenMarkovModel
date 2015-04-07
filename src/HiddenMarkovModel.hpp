@@ -72,6 +72,14 @@ private:
 	double backwardHelper(const std::vector<std::string>&, int, const std::string&);
 	std::pair<double, std::vector<std::string> > viterbiHelper(const std::vector<std::string>&);
 
+	double xi(const std::vector<std::string>&, int, const std::string&, const std::string&);
+	double gamma(const std::vector<std::string>&, int, const std::string&);
+
+	double expectedTransition(const std::vector<std::string>&,
+							  const std::string&, const std::string&);
+	double expectedEmission(const std::vector<std::string>&, const std::string&);
+	double expectedInitState(const std::vector<std::string>&, const std::string&);
+
 private:
 	size_t _numOfStates, _numOfOutputs;
 
