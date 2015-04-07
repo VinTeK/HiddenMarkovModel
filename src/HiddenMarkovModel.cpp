@@ -40,6 +40,8 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	// get output names
 	getline(file, line);
 	vector<string> outputNames = split<string>(line);
+	// initialize all output symbols
+	_outputNames = outputNames;
 
 	// consume "a:"
 	file.ignore(numeric_limits<streamsize>::max(), '\n');

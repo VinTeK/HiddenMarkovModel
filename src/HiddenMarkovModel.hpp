@@ -19,8 +19,8 @@ class HiddenMarkovModel
 public:
 	HiddenMarkovModel(const std::string& filename);
 
-	size_t numOfStates() const { return _numOfStates; }
-	size_t numOfOutputs() const { return _numOfOutputs; }
+	const std::vector<std::string>& states() const { return _stateNames; }
+	const std::vector<std::string>& outputs() const { return _outputNames; }
 
 	/**
 	 * Return state transition probability from states stt1 to stt2.
@@ -83,7 +83,7 @@ private:
 private:
 	size_t _numOfStates, _numOfOutputs;
 
-	std::vector<std::string> _stateNames;
+	std::vector<std::string> _stateNames, _outputNames;
 
 	std::map<std::string, std::map<std::string, double> > _transitions;
 	std::map<std::string, std::map<std::string, double> > _emissions;
