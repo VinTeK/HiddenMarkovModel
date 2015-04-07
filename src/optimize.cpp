@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include "HiddenMarkovModel.hpp"
 
@@ -16,18 +17,22 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	/* Parse arguments. We accept only one .hmm file but allow multiple .obs files. */
-	string hmmFilename;
-	vector<string> obsFilenames;
+	/* Parse arguments. We accept only one .hmm file and one .obs file. */
+	string hmmFilename, obsFilename, optHmmFilename;
 
 	for (int i = 1; i < argc; ++i)
 	{
 		string arg(argv[i]);
 
 		if (arg.find(".hmm") != string::npos)
-			hmmFilename = arg;
+		{
+			if (hmmFilename.empty())
+				hmmFilename = arg;
+			else
+				optHmmFilename = arg;
+		}
 		else if (arg.find(".obs") != string::npos)
-			obsFilenames.push_back(arg);
+			obsFilename = arg;
 	}
 
 	if (hmmFilename.empty())
@@ -35,16 +40,25 @@ int main(int argc, char** argv)
 		cerr << "no .hmm file found" << endl;
 		return 1;
 	}
+	if (obsFilename.empty())
+	{
+		cerr << "no input .obs file found" << endl;
+		return 1;
+	}
+	if (optHmmFilename.empty())
+	{
+		cerr << "no output .obs file found" << endl;
+		return 1;
+	}
+
 
 	HiddenMarkovModel hmm(hmmFilename);
+	cout << hmm.forward(obsFilename)[0];
 
-	/*
-	for (auto i = obsFilenames.begin(); i != obsFilenames.end(); ++i)
-	{
-		cout << *i << ":" << endl;
-		hmm.eval(*i);
-	}
-	*/
+	hmm.optimized(obsFilename, optHmmFilename);
+
+	HiddenMarkovModel optimized(optHmmFilename);
+	cout << " " << optimized.forward(obsFilename)[0] << endl;
 
 	return 0;
 }
@@ -52,5 +66,5 @@ int main(int argc, char** argv)
 
 void help(char* program)
 {
-	cout << program << ": [model.hmm] [observation.obs ...]" << endl;
+	cout << program << ": [model.hmm] [observation.obs] [optimized_model.hmm]" << endl;
 }
