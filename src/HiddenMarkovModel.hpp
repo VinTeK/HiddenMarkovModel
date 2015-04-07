@@ -21,6 +21,7 @@ public:
 
 	const std::vector<std::string>& states() const { return _stateNames; }
 	const std::vector<std::string>& outputs() const { return _outputNames; }
+	const int timeSteps() const { return _numOfTimeSteps; }
 
 	/**
 	 * Return state transition probability from states stt1 to stt2.
@@ -81,7 +82,7 @@ private:
 	double expectedInitState(const std::vector<std::string>&, const std::string&);
 
 private:
-	size_t _numOfStates, _numOfOutputs;
+	size_t _numOfTimeSteps;
 
 	std::vector<std::string> _stateNames, _outputNames;
 

@@ -27,9 +27,8 @@ HiddenMarkovModel::HiddenMarkovModel(const string& filename)
 	getline(file, line);
 	vector<int> sizes = split<int>(line);
 
-	// initialize number of states and observation symbols
-	_numOfStates = sizes[0];
-	_numOfOutputs = sizes[1];
+	// initialize number of time steps
+	_numOfTimeSteps = sizes[2];
 
 	// get state names
 	getline(file, line);
@@ -346,7 +345,7 @@ double HiddenMarkovModel::expectedTransition(const vector<string>& obs,
 											 const string& stt_i, const string& stt_j)
 {
 	double xiSum = 0, gammaSum = 0;
-	for (int t = 0; t < obs.size()-1; ++t)
+	for (size_t t = 0; t < obs.size()-1; ++t)
 	{
 		xiSum += xi(obs, t, stt_i, stt_j);
 		gammaSum += gamma(obs, t, stt_i);
@@ -358,7 +357,7 @@ double HiddenMarkovModel::expectedTransition(const vector<string>& obs,
 double HiddenMarkovModel::expectedEmission(const vector<string>& obs, const string& curStt)
 {
 	double sum1 = 0, sum2 = 0;
-	for (int t = 0; t < obs.size(); ++t)
+	for (size_t t = 0; t < obs.size(); ++t)
 	{
 		if (obs[t] == curStt)
 			sum1 += gamma(obs, t, curStt);
