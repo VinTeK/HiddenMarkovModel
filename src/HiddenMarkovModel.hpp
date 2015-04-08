@@ -67,6 +67,10 @@ public:
 	 * for each observation sequence in a given .obs file.
 	 */
 	std::vector<std::pair<double, std::vector<std::string> > > viterbi(const std::string& filename);
+	/**
+	 * Writes an optimized HMM with respect to a given observation sequence in an .obs file.
+	 */
+	void optimized(const std::string& obsFilename, const std::string& optFilename);
 
 private:
 	double forwardHelper(const std::vector<std::string>&, int, const std::string&);
@@ -78,12 +82,12 @@ private:
 
 	double expectedTransition(const std::vector<std::string>&,
 							  const std::string&, const std::string&);
-	double expectedEmission(const std::vector<std::string>&, const std::string&);
+	double expectedEmission(const std::vector<std::string>&,
+							const std::string&, const std::string&);
 	double expectedInitState(const std::vector<std::string>&, const std::string&);
 
 private:
 	size_t _numOfTimeSteps;
-
 	std::vector<std::string> _stateNames, _outputNames;
 
 	std::map<std::string, std::map<std::string, double> > _transitions;

@@ -85,6 +85,12 @@
 				<li>We shouldn't try to optimize HMM with zero probability because it means that there is no chance of the current sentence being observed. So, it will give weird results and not optimize it.
 			</ul>
 			</p>
+	<p>
+			<u>Question 4</u>
+			<ul>
+				<li>We need to have more states for Adveerb and Present tense. Matrices A, B and Pi will need to accomodate these new states and their values will change. A will now be 6x6 size, B will be 6x8 and pi will be 1x6.
+			</ul>
+			</p>
 
 			<hr>
 			<h2> Method and Implementation </h2>

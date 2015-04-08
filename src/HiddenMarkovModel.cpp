@@ -146,6 +146,7 @@ double HiddenMarkovModel::eval(const vector<string>& out, const vector<string>& 
 }
 
 
+#if 0
 /* Treat t as the time marker at each point in the observation sequence. */
 double HiddenMarkovModel::forwardHelper(const vector<string>& obs, int t, const string& curStt)
 {
@@ -161,6 +162,45 @@ double HiddenMarkovModel::forwardHelper(const vector<string>& obs, int t, const 
 
 
 	return sum * emission(curStt, obs[t]);
+}
+
+vector<double> HiddenMarkovModel::forward(const string& filename)
+{
+	/* Vector of observation sequences. */
+	vector<vector<string> > observations = parseObsFile(filename);
+	if (observations.empty())
+		throw runtime_error("observation file is empty");
+
+	vector<double> ret;
+
+	/* Iterate through each sequence of observations. */
+	for (auto obs : observations)
+	{
+		double sum = 0;
+
+		for (auto stt : _stateNames)
+			sum += forwardHelper(obs, obs.size()-1, stt);
+
+		ret.push_back(sum);
+	}
+
+	return ret;
+}
+#endif
+/* Treat t as the time marker at each point in the observation sequence. */
+double HiddenMarkovModel::forwardHelper(const vector<string>& obs, int t, const string& curStt)
+{
+	/* Base case: no previous paths, so the current state must be the initial state. */
+	if (t == 0)
+		return initEval(obs[t], curStt);
+
+	double sum = 0;
+
+	/* Sum up probabilities of all paths leading to curStt. */
+	for (auto stt : _stateNames)
+		sum += forwardHelper(obs, t-1, stt) * transition(stt, curStt);
+
+	return emission(curStt, obs[t]) * sum;
 }
 
 vector<double> HiddenMarkovModel::forward(const string& filename)
@@ -319,16 +359,71 @@ vector<pair<double, vector<string> > > HiddenMarkovModel::viterbi(const string& 
 }
 
 
+void HiddenMarkovModel::optimized(const string& obsFilename, const string& optFilename)
+{
+	vector<vector<string> > observations = parseObsFile(obsFilename);
+	if (observations.empty())
+		throw runtime_error("observation file is empty");
+
+	ofstream file(optFilename);
+	if (!file.is_open())
+		throw runtime_error("cannot create file: " + optFilename);
+
+	int N = _stateNames.size(), M = _outputNames.size(), T = _numOfTimeSteps;
+	file << N << " " << M << " " << T << endl;
+
+	/* Set with fixed floating point notation. */
+	//file.setf(ios_base::fixed, ios_base::floatfield);
+
+	/* Write state names. */
+	for (auto stt : _stateNames)
+		file << stt << " ";
+	file << endl;
+
+	/* Write observation symbols. */
+	for (auto out : _outputNames)
+		file << out << " ";
+	file << endl;
+
+	/* Write transition matrix. */
+	file << "a:" << endl;
+	for (auto rowStt : _stateNames)
+	{
+		for (auto colStt : _stateNames)
+			file << expectedTransition(observations[0], rowStt, colStt) << " ";
+		file << endl;
+	}
+
+	/* Write emission matrix. */
+	file << "b:" << endl;
+	for (auto stt : _stateNames)
+	{
+		for (auto out : _outputNames)
+			file << expectedEmission(observations[0], stt, out) << " ";
+		file << endl;
+	}
+
+	/* Write initial state matrix. */
+	file << "pi:" << endl;
+	for (auto stt : _stateNames)
+		file << expectedInitState(observations[0], stt) << " ";
+	file << endl;
+
+	/* Unset all floating point notation flags. */
+	//file.unsetf(ios_base::floatfield);
+}
+
+
 double HiddenMarkovModel::xi(const vector<string>& obs, int t,
 							 const string& stt_i, const string& stt_j)
 {
-	double tmp = forwardHelper(obs, t, stt_i) * transition(stt_i, stt_j) *
+	double sum1 = forwardHelper(obs, t, stt_i) * transition(stt_i, stt_j) *
 				 backwardHelper(obs, t+1, stt_j) * emission(stt_j, obs[t+1]);
 
-	double sum = 0;
+	double sum2 = 0;
 	for (auto stt : _stateNames)
-		sum += forwardHelper(obs, t, stt) * backwardHelper(obs, t, stt);
-	return tmp / sum;
+		sum2 += forwardHelper(obs, t, stt) * backwardHelper(obs, t, stt);
+	return sum1 / sum2;
 }
 
 
@@ -344,27 +439,28 @@ double HiddenMarkovModel::gamma(const vector<string>& obs, int t, const string& 
 double HiddenMarkovModel::expectedTransition(const vector<string>& obs,
 											 const string& stt_i, const string& stt_j)
 {
-	double xiSum = 0, gammaSum = 0;
-	for (size_t t = 0; t < obs.size()-1; ++t)
+	double sum1 = 0, sum2 = 0;
+	for (size_t t = 0; t < obs.size()-2; ++t)
 	{
-		xiSum += xi(obs, t, stt_i, stt_j);
-		gammaSum += gamma(obs, t, stt_i);
+		sum1 += xi(obs, t, stt_i, stt_j);
+		sum2 += gamma(obs, t, stt_i);
 	}
-	return xiSum / gammaSum;
+	return (sum2 == 0.0) ? 0.0 : (sum1 / sum2);
 }
 
 
-double HiddenMarkovModel::expectedEmission(const vector<string>& obs, const string& curStt)
+double HiddenMarkovModel::expectedEmission(const vector<string>& obs, const string& curStt,
+										   const string& out)
 {
 	double sum1 = 0, sum2 = 0;
-	for (size_t t = 0; t < obs.size(); ++t)
+	for (size_t t = 0; t < obs.size()-1; ++t)
 	{
-		if (obs[t] == curStt)
+		if (obs[t] == out)
 			sum1 += gamma(obs, t, curStt);
 
 		sum2 += gamma(obs, t, curStt);
 	}
-	return sum1 / sum2;
+	return (sum2 == 0.0) ? 0.0 : (sum1 / sum2);
 }
 
 
